@@ -17,8 +17,8 @@ export const Register: React.FC<registerProps> = ({}) => {
         initialValues={{ username: "", email: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
           const response = await register(values);
-          if (response.data?.register.errors) {
-            setErrors(errorMapping(response.data.register.errors));
+          if (response.data?.register?.errors) {
+            setErrors(errorMapping(response.data?.register?.errors)[0]);
           } else if (response.data?.register.user) {
             //push to next page
             //work on this tomorrow. too tired.
