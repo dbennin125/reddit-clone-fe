@@ -11,16 +11,37 @@ import {
 import { valueScaleCorrection } from "framer-motion/types/render/dom/layout/scale-correction";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
+import { useMutation } from "urql";
 
 interface registerProps {}
 
+const REGISTER_MUTATION = `
+mutation Register($username: String!, $email: String!, $password: String!) {
+    register(userInput: {
+      username: $username,  
+      email: $email,
+      password: $password
+    }) {
+      errors{
+        field
+        message
+      }
+      user {
+        id
+      }
+    }
+  }
+`;
+
 export const Register: React.FC<registerProps> = ({}) => {
+  const [, register] = useMutation(REGISTER_MUTATION);
   return (
     <Wrapper size="small">
       <Formik
-        initialValues={{ email: "", username: "", password: "" }}
+        initialValues={{ username: "", email: "", password: "" }}
         onSubmit={(values) => {
           console.log(values);
+          return register(values);
         }}
       >
         {({ isSubmitting }): JSX.Element => (
