@@ -1,47 +1,28 @@
 import React from "react";
-import { Form, Formik } from "formik";
-import {
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  Box,
-  Button,
-} from "@chakra-ui/react";
-import { valueScaleCorrection } from "framer-motion/types/render/dom/layout/scale-correction";
+import { Form, Formik, setErrors } from "formik";
+import { Box, Button } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
 import { useMutation } from "urql";
+import { useRegisterMutation } from "../generated/graphql";
+import { errorMapping } from "../../utils/errormapping";
 
 interface registerProps {}
 
-const REGISTER_MUTATION = `
-mutation Register($username: String!, $email: String!, $password: String!) {
-    register(userInput: {
-      username: $username,  
-      email: $email,
-      password: $password
-    }) {
-      errors{
-        field
-        message
-      }
-      user {
-        id
-      }
-    }
-  }
-`;
-
 export const Register: React.FC<registerProps> = ({}) => {
-  const [, register] = useMutation(REGISTER_MUTATION);
+  const [, register] = useRegisterMutation();
   return (
     <Wrapper size="small">
       <Formik
         initialValues={{ username: "", email: "", password: "" }}
-        onSubmit={(values) => {
-          console.log(values);
-          return register(values);
+        onSubmit={async (values, { setErrors }) => {
+          const response = await register(values);
+          if (response.data?.register.errors) {
+            setErrors(errorMapping(response.data.register.errors));
+          } else if (response.data?.register.user) {
+            //push to next page
+            //work on this tomorrow. too tired.
+          }
         }}
       >
         {({ isSubmitting }): JSX.Element => (
